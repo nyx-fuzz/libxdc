@@ -31,6 +31,9 @@ By adding an edge callback (`libxdc_register_edge_callback`) and enabling trace 
 
 You need to append a single byte 0x55 to the trace, but excluded it from the trace size. This byte is used to mark the end of the input and allows us to increase the performance during decoding. If you do not do this, an assertion is raised.
 
+This decoder expects that return compression and generation of CYC, TSC and MTC packets are disabled.
+You can disable those options if you are using perf. KVM-PT disables them by default. To manually disable return compression set bit 11 (`DisRETC`) in `IA32_RTIT_CTL` MSR to 1. CYC, MTC and TSC packet generation can be disabled if bit 1 (`CYCEn`), bit 9 (`MTCEn`) and bit 10 (`TSCEn`) are set to 0. 
+
 ## Performance Evaluation
 
 Extraordinary claims require extraordinary evidence. As such, we of course perform a set of entirely unfair and unscientific experiments to substantiate our performance claims. To check the decoding/disassembly performance of various available options for dealing with Intel PT data we setup an experiment in which we picked about a GB of traces from fuzzing various targets. We extracted various alternative approaches from other fuzzers such as WinAFL, Honggfuzz, PTrix and Killerbeez to create a controlled evaluation setup. Most of these tools only consider a subset of the data for performance reasons. It should be noted that some of these tools claim performance improvements over full decoders such as our approach used in kAFL. Notably, PTrix evaluated against various alternatives, but measured only a single execution on cold caches. As we shall see, while these tools provide data that is far less useful for fuzzing, they do not actually provide performance advantages. 
