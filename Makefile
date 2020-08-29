@@ -13,6 +13,7 @@ OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 default: tester_dyn tester_static
 
 $(ODIR)/%.o: $(SDIR)/%.c $(SDIR)/*.h libxdc.h
+	mkdir -p build
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 dynlib: $(OBJ)
