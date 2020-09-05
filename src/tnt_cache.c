@@ -43,6 +43,8 @@ uint64_t get_tnt_hash(tnt_cache_t* self){
 
 
 	if(self->bl_tnt == 0){
+		self->bl_max = 0;
+		self->bl_pos = 0;
 		// fast path 
 		return 0;
 	}
@@ -138,6 +140,8 @@ static inline uint8_t process_tnt_cache_bl(tnt_cache_t* self){
 		self->bl_pos = (self->bl_pos + 1) % (BUF_SIZE);
 		return res;
 	}
+	self->bl_max = 0;
+	self->bl_pos = 0;
 	return TNT_EMPTY;
 }
 
