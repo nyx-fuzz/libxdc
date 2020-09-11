@@ -10,7 +10,7 @@ LDIR =build
 _OBJ = cfg.o disassembler.o tnt_cache.o decoder.o libxdc.o mmh3.o trace_cache.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-default: tester_dyn tester_static
+default: dynlib staticlib
 
 $(ODIR)/%.o: $(SDIR)/%.c $(SDIR)/*.h libxdc.h
 	mkdir -p build

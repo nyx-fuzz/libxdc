@@ -194,6 +194,9 @@ decoder_t* pt_decoder_init(){
 }
 
 void pt_decoder_destroy(decoder_t* self){
+    if ( !self )
+        return;
+
 	if(self->tnt_cache_state){
 		//destroy_disassembler(self->disassembler_state);
 		tnt_cache_destroy(self->tnt_cache_state);

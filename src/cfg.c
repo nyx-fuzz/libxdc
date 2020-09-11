@@ -22,20 +22,25 @@ SOFTWARE.
 
 #include "cfg.h"
 
-void disassembler_cfg_init(disassembler_cfg_t* res, uint32_t size){
+bool disassembler_cfg_init(disassembler_cfg_t* res, uint32_t size){
     res->br1 = (cfg_branch_t*)calloc(size, sizeof(cfg_branch_t));
     res->br2 = (cfg_branch_t*)calloc(size, sizeof(cfg_branch_t));
     res->base_addr = (uint64_t*)calloc(size, sizeof(uint64_t));
     res->cofi_addr = (uint64_t*)calloc(size, sizeof(uint64_t));
     res->br1_addr = (uint64_t*)calloc(size, sizeof(uint64_t));
     res->br2_addr = (uint64_t*)calloc(size, sizeof(uint64_t));
-    res->type = (cofi_type*)calloc(size, sizeof(cofi_type));
     res->max_size = size;
     res->next_node_id = NODE_OOB+1;
     res->next_bitmap_id=0;
     res->ip_to_node_id = kh_init(ADDR0);
+
+    if ( !(res->type = (cofi_type*)calloc(size, sizeof(cofi_type))) )
+        return false;
+
     res->type[NODE_PAGE_FAULT]=PAGE_CACHE_FAILED; //NODE_PAGE_FAULT is used to indicate that disassembly failed due to missing memory
     res->type[NODE_OOB]=OUT_OF_BOUNDS;
+
+    return true;
 }
 
 void disassembler_cfg_destroy(disassembler_cfg_t* self){

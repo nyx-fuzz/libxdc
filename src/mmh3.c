@@ -48,7 +48,7 @@ FORCE_INLINE uint64_t fmix64(uint64_t k) {
     return k;
 }
 
-void mmh3_x86_32(const void *key, int len, uint32_t seed, void *out) {
+void mmh3_x86_32(const void *key, uint64_t len, uint32_t seed, void *out) {
     const uint8_t *data = (const uint8_t *) key;
     const int nblocks = len/4;
     uint32_t h1 = seed;
@@ -62,7 +62,7 @@ void mmh3_x86_32(const void *key, int len, uint32_t seed, void *out) {
         k1 *= c1;
         k1 = ROTL32(k1, 15);
         k1 *= c2;
-        
+
         h1 ^= k1;
         h1 = ROTL32(h1, 13);
         h1 = 5*h1 + 0xe6546b64;
@@ -72,9 +72,9 @@ void mmh3_x86_32(const void *key, int len, uint32_t seed, void *out) {
     uint32_t k1 = 0;
 
     switch (len & 3) {
-        case 3: k1 ^= tail[2] << 16;
-        case 2: k1 ^= tail[1] << 8;
-        case 1: k1 ^= tail[0];
+        case 3: k1 ^= (uint32_t)(tail[2] << 16);
+        case 2: k1 ^= (uint32_t)(tail[1] << 8);
+        case 1: k1 ^= (uint32_t)(tail[0]);
                 k1 *= c1;
                 k1 = ROTL32(k1, 15);
                 k1 *= c2;
@@ -87,7 +87,7 @@ void mmh3_x86_32(const void *key, int len, uint32_t seed, void *out) {
     *(uint32_t *) out = h1;
 }
 
-void mmh3_x86_128(const void *key, const int len, uint32_t seed, void *out) {
+void mmh3_x86_128(const void *key, const uint64_t len, uint32_t seed, void *out) {
     const uint8_t *data = (const uint8_t *) key;
     const int nblocks = len/16;
 
@@ -219,7 +219,7 @@ void mmh3_x86_128(const void *key, const int len, uint32_t seed, void *out) {
     ((uint32_t *) out)[3] = h4;
 }
 
-void mmh3_x64_128(const void *key, const int len, const uint32_t seed, void *out) {
+void mmh3_x64_128(const void *key, const uint64_t len, const uint32_t seed, void *out) {
     const uint8_t *data = (const uint8_t *) key;
     const int nblocks = len/16;
     uint64_t h1 = seed;
