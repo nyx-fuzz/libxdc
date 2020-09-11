@@ -331,15 +331,20 @@ static node_id_t disassemble_bb(disassembler_t* self, uint64_t base_address, uin
 disassembler_t* init_disassembler(uint64_t filter[4][2], void* (*page_cache_fetch_fptr)(void*, uint64_t, bool*), void* page_cache_fetch_opaque, fuzz_bitmap_t* fuzz_bitmap){
 	disassembler_t* self = malloc(sizeof(disassembler_t));
 
+	if ( !disassembler_cfg_init(&self->cfg, 0xfffff) )
+    {
+        disassembler_cfg_destroy(&self->cfg);
+        free(self);
+        return NULL;
+    }
+
 	self->page_cache_fetch_fptr = page_cache_fetch_fptr;
 	self->page_cache_fetch_opaque = page_cache_fetch_opaque;
-
-	disassembler_cfg_init(&self->cfg, 0xfffff);
 
 	//res->code = code;
 	self->infinite_loop_found = false;
 	self->debug = false;
-  
+
 	/* check me */
 	self->has_pending_indirect_branch = false;
  	self->pending_indirect_branch_src = 0;
@@ -417,6 +422,9 @@ void reset_trace_cache(disassembler_t* self){
 }
 
 void destroy_disassembler(disassembler_t* self){
+    if ( !self )
+        return;
+
 	trace_cache_destroy(self->trace_cache);
 	disassembler_cfg_destroy(&self->cfg);
 	cs_close(&self->handle_16);

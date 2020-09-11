@@ -59,7 +59,14 @@ __attribute__ ((visibility ("default")))  libxdc_t* libxdc_init(uint64_t filter[
 
   self->fuzz_bitmap = net_fuzz_bitmap(bitmap_ptr, bitmap_size);
   self->decoder = pt_decoder_init();
-  self->disassembler = init_disassembler(filter, page_cache_fetch_fptr, page_cache_fetch_opaque, self->fuzz_bitmap);  
+  self->disassembler = init_disassembler(filter, page_cache_fetch_fptr, page_cache_fetch_opaque, self->fuzz_bitmap);
+
+  if ( !self->disassembler )
+  {
+    libxdc_free(self);
+    return NULL;
+  }
+
   self->decoder->disassembler_state = self->disassembler; /* fugly hack */
 
   fuzz_bitmap_reset(self->fuzz_bitmap);

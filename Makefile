@@ -9,7 +9,7 @@ SDIR=src
 _OBJ = cfg.o disassembler.o tnt_cache.o decoder.o libxdc.o mmh3.o trace_cache.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-default: tester_dyn tester_static
+default: libxdc.so libxdc.a
 
 $(ODIR)/%.o: $(SDIR)/%.c $(SDIR)/*.h libxdc.h
 	mkdir -p build
@@ -39,5 +39,3 @@ clean:
 	rm -f $(ODIR)/*.o build/*
 	rm libxdc.so
 	rm libxdc.a
-	rm tester_dyn
-	rm tester_static
