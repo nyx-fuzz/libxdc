@@ -117,7 +117,7 @@ See: https://github.com/andikleen/simple-pt/blob/master/fastdecode.c
 
 #define PT_PKT_TIP_LEN			8
 #define PT_PKT_TIP_SHIFT		5
-#define PT_PKT_TIP_MASK			__extension__ 0b00011111
+#define PT_PKT_TIP_MASK			__extension__ 0b00000111
 #define PT_PKT_TIP_BYTE0		__extension__ 0b00001101
 #define PT_PKT_TIP_PGE_BYTE0	__extension__ 0b00010001
 #define PT_PKT_TIP_PGD_BYTE0	__extension__ 0b00000001
@@ -320,22 +320,47 @@ static inline void decoder_handle_fup(decoder_state_machine_t *self, uint64_t fu
 	}
 }
 
-static inline uint64_t get_ip_val(uint8_t **pp, uint64_t *last_ip){
-	register uint8_t len = (*(*pp)++ >> PT_PKT_TIP_SHIFT);
-	if(unlikely(!len))
-		return 0;
-	uint64_t aligned_last_ip, aligned_pp;
-	memcpy(&aligned_pp, *pp, sizeof(uint64_t));
-	memcpy(&aligned_last_ip, last_ip, sizeof(uint64_t));
-	
-	aligned_last_ip = ((int64_t)((uint64_t)( 
-		((aligned_pp & (0xFFFFFFFFFFFFFFFF >> ((4-len)*16))) | (aligned_last_ip & (0xFFFFFFFFFFFFFFFF << ((len)*16))) ) 
-	)<< (64 - 48))) >> (64 - 48);
-	
-	memcpy(last_ip, &aligned_last_ip, sizeof(uint64_t));
+static const int ipp_len[] = {
+    [0] = 0, //suppressed
+    [1] = 2, //update_16
+    [2] = 4, //update_32
+    [3] = 6, //sext_48 (sign extend)
+    [4] = 6, //update_48
+    [6] = 8  //full
+};
 
-	*pp += (len*2);
-	return *last_ip;
+static inline uint64_t get_ip_val(uint8_t **pp, uint64_t *last_ip){
+    uint8_t *p = *pp;
+    uint8_t ipc = (*p++ >> PT_PKT_TIP_SHIFT) & PT_PKT_TIP_MASK; // ip compression mode
+
+    if ( ipc == 5 || ipc > 6 )
+        return 0;
+
+    uint8_t len = ipp_len[ipc]; // ip packet length
+
+    if ( !len )
+    {
+        *pp = p;
+        return *last_ip;
+    }
+
+    uint64_t val;
+    uint8_t idx;
+
+    for (val = 0, idx = 0; idx < len; ++idx) {
+        uint64_t byte = *p++;
+
+        byte <<= (idx * 8);
+        val |= byte;
+    }
+
+    // sign extend
+    if (val & (1ull << 47))
+        val = ((int64_t)(val << (64-48))) >> (64-48);
+
+    *last_ip = val;
+    *pp = p;
+    return *last_ip;
 }
 
 static inline uint64_t get_val(uint8_t **pp, uint8_t len){
