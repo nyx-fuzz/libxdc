@@ -354,12 +354,17 @@ static inline uint64_t get_ip_val(uint8_t **pp, uint64_t *last_ip){
         val |= byte;
     }
 
+    // extend mask from last ip if this is short here
+    if ( ipc < 3 )
+        val |= *last_ip & (0xFFFFFFFFFFFFFFFF << (ipc*16));
+
     // sign extend
     if (val & (1ull << 47))
         val = ((int64_t)(val << (64-48))) >> (64-48);
 
     *last_ip = val;
     *pp = p;
+
     return *last_ip;
 }
 
