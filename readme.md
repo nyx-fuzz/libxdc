@@ -62,6 +62,16 @@ The bars show the average slowdown over the best decoder. The error bars represe
 
 ![](https://github.com/nyx-fuzz/libxdc_experiments/raw/master/experiments/eval.png)
 
+### Honeybee
+
+In 2021, Trail of Bits released [Honeybee](https://github.com/trailofbits/Honeybee), a fuzzer that builds on top of libxdc by merging it into honggfuzz. They also proposed to create the decoder caches in a preprocessing step. Initially we were very enthusiastic about this approach, as any improvement to libxdc would be a significant win for fuzzing and the idea of statically constructed highly cpu-cache friendly caches is pretty cool. We immediately started evaluating Trail of Bits' version of libxdc. It turned out that the experiments performed were not measuring what we care about: Performance on a single execution instead of performance on thousands of executions (as occur within the typical fuzzing campaign). We repeated the experiments in a setup that compares both decoders 4 times (in each case decoding the same trace 25 times in a row) similar to how we meassured all other decoders before. To our surprise we found that on average libxdc is in fact around 1.5x faster than Honeybee's decoder. On the other hand, when running a single input on cold caches of libxdc, we find that Honeybee outperformes libxdc in many cases. It should be noted, we didn't include Honeybee's additional overhead for creating the caches as those would be neglectable during fuzzing. The resulting plots can be found [here](https://github.com/nyx-fuzz/libxdc_experiments/raw/master/experiments/eval_honeybee_cold.png).
+
+Together with the author of Honeybee, we investigated the reasons for this surprising performance result, and found that Honeybee uses a different kind of caching than libxdc. In libxdc, the decoder caches pairs of addresses (up to the next 56 Taken/NotTaken-bits) and maps those to bitmap deltas. That is, with a single cache lookup, libxdc is able to handle up to 56 edges at once. This wouldn't be feasible with static caches as the number of such entries is too large to be exhaustively enumerated. Additionally, Honeybee choose to use branching versions for some highly performance critical functions, whereas libxdc uses these only in debug builds and runs optimized branch-free code in the release build.
+
+The results of our experiments are presented below. It should be noted that we only evaluate on the examples provided by Honyebee. This is due to the fact that the pre-processing stage of Honeybee is limited to analyzing a single ELF executable with a single executable section, whereas many of our experiments use memory dumps with libraries and kernel modules mapped into the process address space.
+
+![](https://github.com/nyx-fuzz/libxdc_experiments/raw/master/experiments/eval_honeybee.png)
+
 ## Install
 
 libxdc depends on capstone v4. Unfortunately, many distributions don't contain this version in their package management. To install libcapstone v4: 
