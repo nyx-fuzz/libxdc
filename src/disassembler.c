@@ -632,7 +632,7 @@ __attribute__((hot)) disas_result_t trace_disassembler(disassembler_t* self, uin
 
 	*failed_page = 0;
 
-	if(self->trace_mode){
+	if(unlikely(self->trace_mode)){
 			return trace_disassembler_loop(self, &entry_point, limit, tnt_cache_state, NULL, NULL, failed_page, mode, true);
 	}
 
@@ -669,4 +669,5 @@ __attribute__((hot)) disas_result_t trace_disassembler(disassembler_t* self, uin
 			}
 		}
 	}
+	return disas_success;
  }
