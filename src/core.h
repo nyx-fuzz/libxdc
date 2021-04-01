@@ -63,8 +63,12 @@ typedef struct trace_cache_key_s{
 	uint64_t limit;
 } trace_cache_key_t;
 
-
-#define kh_trace_cache_key_t_hash_func(key)  (khint32_t)(((key.entry)>>33^(key.entry)^(key.entry)<<11) ^ ((key.limit)>>33^(key.limit)^(key.limit)<<11) ^ ((key.tnt_hash)>>33^(key.tnt_hash)^(key.tnt_hash)<<11))
+static inline khint32_t kh_trace_cache_key_t_hash_func(trace_cache_key_t key) {
+	khint32_t hash = key.entry + 0x9e3779b9;
+	hash ^= key.limit + 0x9e3779b9 + (hash << 5) + (hash >> 2);
+	hash ^= key.tnt_hash + 0x9e3779b9 + (hash << 5) + (hash >> 2);
+	return hash;
+}
 
 //static inline int kh_trace_cache_key_t_equal(trace_cache_key_t k1, trace_cache_key_t k2) { return !memcmp(&k1, &k2, sizeof(k1)); }
 static inline int kh_trace_cache_key_t_equal(trace_cache_key_t k1, trace_cache_key_t k2) { return k1.tnt_hash == k2.tnt_hash && k1.entry == k2.entry && k1.limit == k2.limit ; }
