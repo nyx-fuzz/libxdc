@@ -318,21 +318,27 @@ static inline void decoder_handle_fup(decoder_state_machine_t *self, uint64_t fu
 }
 
 static inline uint64_t get_ip_val(uint8_t **pp, uint64_t *last_ip){
-	register uint8_t len = (*(*pp)++ >> PT_PKT_TIP_SHIFT);
-	if(unlikely(!len))
-		return 0;
-	uint64_t aligned_last_ip, aligned_pp;
-	memcpy(&aligned_pp, *pp, sizeof(uint64_t));
-	memcpy(&aligned_last_ip, last_ip, sizeof(uint64_t));
-	
-	aligned_last_ip = ((int64_t)((uint64_t)( 
-		((aligned_pp & (0xFFFFFFFFFFFFFFFF >> ((4-len)*16))) | (aligned_last_ip & (0xFFFFFFFFFFFFFFFF << ((len)*16))) ) 
-	)<< (64 - 48))) >> (64 - 48);
-	
-	memcpy(last_ip, &aligned_last_ip, sizeof(uint64_t));
+    const uint8_t type = (*(*pp)++ >> 5);
+    uint64_t aligned_last_ip, aligned_pp;
+    memcpy(&aligned_pp, *pp, sizeof(uint64_t));
+    memcpy(&aligned_last_ip, last_ip, sizeof(uint64_t));
 
-	*pp += (len*2);
-	return *last_ip;
+    if (unlikely(type == 0)) {
+        return 0;
+    }
+
+    const uint8_t new_bits = 0xFF40FF30302010FFull >> (type * 8);
+    if (unlikely(type == 3)) {
+        aligned_last_ip = (int64_t)(aligned_pp << 16) >> 16;
+    } else {
+        const uint8_t old_bits = sizeof(aligned_last_ip) * 8 - new_bits;   // always less than 64
+        const uint64_t new_mask = (~0ull) >> old_bits;
+        const uint64_t old_mask = ~new_mask;
+        aligned_last_ip = (aligned_last_ip & old_mask) | (aligned_pp & new_mask);
+    }
+    memcpy(last_ip, &aligned_last_ip, sizeof(uint64_t));
+    *pp += new_bits >> 3;
+    return aligned_last_ip;
 }
 
 static inline uint64_t get_val(uint8_t **pp, uint8_t len){
@@ -845,6 +851,7 @@ __attribute__((hot)) decoder_result_t decode_buffer(decoder_t* self, uint8_t* ma
 				DISPATCH_L1();
 
 			case __extension__ 0b10000010:	/* PSB */
+				self->last_tip = 0;
 				p += PT_PKT_PSB_LEN;
 				LOGGER("PSB\n");
 				#ifdef DECODER_LOG
