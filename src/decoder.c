@@ -927,7 +927,9 @@ __attribute__((hot)) decoder_result_t decode_buffer(decoder_t* self, uint8_t* ma
 
 	if (count_tnt(self->tnt_cache_state) != 0){
 #ifndef LIBFUZZER
-		fprintf(stderr, "\nERR: \tTNT %d\n", count_tnt(self->tnt_cache_state));
+		should_disasm_t* res = self->decoder_state_result;
+		fprintf(stderr, "\nERR: \tTNT %d at position <0x%08lx,0x%08lx>\n",
+				count_tnt(self->tnt_cache_state), res->start, res->end);
 #endif
 		pt_decoder_flush(self);
 		return decoder_error;
