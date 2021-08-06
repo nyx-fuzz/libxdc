@@ -356,8 +356,8 @@ static inline uint64_t get_val(uint8_t **pp, uint8_t len){
 static inline void disasm(decoder_t* self){
 	static uint64_t failed_page = 0;
 	should_disasm_t* res = self->decoder_state_result;
-	if(res->valid && (!is_empty_tnt_cache(self->tnt_cache_state) || self->disassembler_state->trace_mode)){
-    	LOGGER("\n\ndisasm(%lx,%lx)\tTNT: %ld\n", res->start, res->end, count_tnt(self->tnt_cache_state));
+	if(res->valid && (!is_empty_tnt_cache(self->tnt_cache_state))){
+		LOGGER("disasm(%lx,%lx)\tTNT: %d\n", res->start, res->end, count_tnt(self->tnt_cache_state));
 			if(unlikely(trace_disassembler(self->disassembler_state, res->start, res->end, self->tnt_cache_state, &failed_page, self->mode) == disas_page_fault)){
 				self->page_fault_found = true;
 				self->page_fault_addr = failed_page;
