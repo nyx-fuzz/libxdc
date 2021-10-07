@@ -75,7 +75,7 @@ __attribute__ ((visibility ("default")))  libxdc_t* libxdc_init(uint64_t filter[
 }
 
 /* register rq handler */
-__attribute__ ((visibility ("default")))  void libxdc_register_bb_callback(libxdc_t* self,  void (*basic_block_callback)(void*, disassembler_mode_t, uint64_t, uint64_t), void* basic_block_callback_opaque){
+__attribute__ ((visibility ("default")))  void libxdc_register_bb_callback(libxdc_t* self,  void (*basic_block_callback)(void*, uint64_t, uint64_t), void* basic_block_callback_opaque){
   assert(self);
   self->disassembler->basic_block_callback = basic_block_callback;
   self->disassembler->basic_block_callback_opaque = basic_block_callback_opaque;
