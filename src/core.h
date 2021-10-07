@@ -182,6 +182,9 @@ typedef struct decoder_s{
 	disassembler_mode_t mode;
 	int error_counter;
 
+	void (*ip_callback)(void*, uint64_t);
+	void* ip_callback_opaque;
+
 #ifdef DECODER_LOG
 	struct decoder_log_s{
 		uint64_t tnt64;

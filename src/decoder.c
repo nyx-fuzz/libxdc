@@ -320,11 +320,11 @@ static inline void decoder_handle_fup(decoder_state_machine_t *self, uint64_t fu
 	}
 }
 
-static inline uint64_t get_ip_val(uint8_t **pp, uint64_t *last_ip){
+static inline uint64_t get_ip_val(decoder_t* self, uint8_t **pp){
     const uint8_t type = (*(*pp)++ >> 5);
     uint64_t aligned_last_ip, aligned_pp;
     memcpy(&aligned_pp, *pp, sizeof(uint64_t));
-    memcpy(&aligned_last_ip, last_ip, sizeof(uint64_t));
+    memcpy(&aligned_last_ip, &self->last_tip, sizeof(uint64_t));
 
     if (unlikely(type == 0)) {
         return 0;
@@ -339,8 +339,12 @@ static inline uint64_t get_ip_val(uint8_t **pp, uint64_t *last_ip){
         const uint64_t old_mask = ~new_mask;
         aligned_last_ip = (aligned_last_ip & old_mask) | (aligned_pp & new_mask);
     }
-    memcpy(last_ip, &aligned_last_ip, sizeof(uint64_t));
+    memcpy(&self->last_tip, &aligned_last_ip, sizeof(uint64_t));
     *pp += new_bits >> 3;
+
+    if (unlikely(NULL != self->ip_callback))
+        self->ip_callback(self->ip_callback_opaque, aligned_last_ip);
+
     return aligned_last_ip;
 }
 
@@ -382,7 +386,7 @@ static void tip_handler(decoder_t* self, uint8_t** p){
 		}
 	}
 
-	get_ip_val(p, &self->last_tip);
+	get_ip_val(self, p);
 
 	LOGGER("TIP    \t%lx (TNT: %d)\n", self->last_tip, count_tnt(self->tnt_cache_state));
 	decoder_handle_tip(self->decoder_state, self->last_tip, self->decoder_state_result);
@@ -405,7 +409,7 @@ static void tip_pge_handler(decoder_t* self, uint8_t** p){
 		}
 	}
 
-	get_ip_val(p, &self->last_tip);
+	get_ip_val(self, p);
 
 	LOGGER("PGE    \t%lx (TNT: %d)\n", self->last_tip, count_tnt(self->tnt_cache_state));
 	decoder_handle_pge(self->decoder_state, self->last_tip, self->decoder_state_result);
@@ -430,7 +434,7 @@ static void tip_pgd_handler(decoder_t* self, uint8_t** p){
 		}
 	}
 
-	get_ip_val(p, &self->last_tip);
+	get_ip_val(self, p);
 	LOGGER("PGD    \t%lx (TNT: %d)\n", self->last_tip, count_tnt(self->tnt_cache_state));
 	decoder_handle_pgd(self->decoder_state, self->last_tip, self->decoder_state_result);
 	disasm(self);
@@ -454,7 +458,7 @@ static void tip_fup_handler(decoder_t* self, uint8_t** p){
 //	printf("%s\n", __func__);
 	if(self->ovp_state){
 		self->decoder_state->state = TraceEnabledWithLastIP;
-		self->decoder_state->last_ip = get_ip_val(p, &self->last_tip);
+		self->decoder_state->last_ip = get_ip_val(self, p);
 	
 		LOGGER("FUP OVP   \t%lx (TNT: %d)\n", self->last_tip, count_tnt(self->tnt_cache_state));
 
@@ -464,7 +468,7 @@ static void tip_fup_handler(decoder_t* self, uint8_t** p){
 		return;
 	}
 		
-	self->last_fup_src = get_ip_val(p, &self->last_tip);
+	self->last_fup_src = get_ip_val(self, p);
 	LOGGER("FUP    \t%lx (TNT: %d)\n", self->last_fup_src, count_tnt(self->tnt_cache_state));
 
 	self->fup_bind_pending = true;
