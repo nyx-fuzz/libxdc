@@ -29,10 +29,29 @@ SOFTWARE.
 
 #define BIT(x)				(1ULL << (x))
 
-static inline uint8_t asm_bsr(uint64_t x){
-	asm ("bsrq %0, %0" : "=r" (x) : "0" (x));
-	return x;
+#if defined(__x86_64__)
+
+static inline uint8_t bsr(uint64_t x){
+        asm ("bsrq %0, %0" : "=r" (x) : "0" (x));
+        return x;
 }
+
+#elif defined(__aarch64__)
+
+static inline uint32_t clz(uint32_t x){
+        __asm__( "clz %w0, %w1" : "=r" ( x ) : "r" ( x ) );
+        return x;
+}
+
+static inline uint8_t bsr(uint64_t x){
+        uint32_t l = 31-clz(x);
+        uint32_t h = 1-clz(x>>32);
+        return (x & 0xFFFFFFFF00000000ULL) ? h : l;
+}
+
+#else
+#error "Unsupported architecture!"
+#endif
 
 #define TNT_HASH_SPLIT_VALUE_BITS 58
 #define TNT_HASH_SPLIT_COUNT_BITS 6
@@ -118,7 +137,7 @@ static inline uint8_t process_tnt_cache_nbl(tnt_cache_t* self){
 }
 
 static inline void append_tnt_cache_nbl(tnt_cache_t* self, uint8_t data){
-	uint8_t bits = asm_bsr(data)-SHORT_TNT_OFFSET;
+	uint8_t bits = bsr(data)-SHORT_TNT_OFFSET;
 	for(uint8_t i = SHORT_TNT_OFFSET; i < bits+SHORT_TNT_OFFSET; i++){
 #ifdef DEBUG
 		printf("%x\n", ((data) & BIT(i)) >> i);
@@ -146,7 +165,7 @@ static inline uint8_t process_tnt_cache_bl(tnt_cache_t* self){
 }
 
 static inline void append_tnt_cache_bl(tnt_cache_t* self, uint8_t data){
-	uint8_t bits = asm_bsr(data)-SHORT_TNT_OFFSET;
+	uint8_t bits = bsr(data)-SHORT_TNT_OFFSET;
 	uint64_t offset = (self->bl_tnt+self->bl_pos);
 	
 	uint64_t tmp_data = (((uint64_t)data) << (64-bits-SHORT_TNT_OFFSET)) >> (offset%32);
@@ -188,7 +207,7 @@ void append_tnt_cache(tnt_cache_t* self, uint8_t data){
 
 void append_tnt_cache_ltnt(tnt_cache_t* self, uint64_t data){
 #ifdef NON_BRANCH_LESS_CODE
-	uint8_t bits = asm_bsr(data)-LONG_TNT_MAX_BITS;
+	uint8_t bits = bsr(data)-LONG_TNT_MAX_BITS;
 	for(uint8_t i = LONG_TNT_MAX_BITS; i < bits+LONG_TNT_MAX_BITS; i++){
 		self->tnt_memory[((self->max+bits-i)%BUF_SIZE)] = ((data) & BIT(i)) >> i;
 	}
