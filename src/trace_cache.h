@@ -26,7 +26,6 @@ SOFTWARE.
 #include <stdlib.h>
 #include "khash.h"
 #include "tnt_cache.h"
-#include <immintrin.h>
 #include "core.h"
 
 /* 
