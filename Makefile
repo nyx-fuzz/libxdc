@@ -15,25 +15,29 @@ $(ODIR)/%.o: $(SDIR)/%.c $(SDIR)/*.h libxdc.h
 	mkdir -p build
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-dynlib: $(OBJ)
-	$(CC) $^ -o build/libxdc.so -shared $(CFLAGS) $(LDFLAGS) -l:libcapstone.so.4
+libxdc.so: $(OBJ)
+	$(CC) $^ -o $@ -shared $(CFLAGS) $(LDFLAGS) -l:libcapstone.so.4
 
-staticlib: $(OBJ)
-	$(AR) rcs build/libxdc.a $^
+libxdc.a: $(OBJ)
+	$(AR) rcs $@ $^
 
-tester_dyn: dynlib test/*.c test/*.h
-	$(CC) test/tester.c test/page_cache.c test/helper.c -o build/$@ -Itest/ -I./ -Lbuild/ $(CFLAGS) $(LDFLAGS) -lxdc -l:libcapstone.so.4
+tester_dyn: libxdc.so test/*.c test/*.h
+	$(CC) test/tester.c test/page_cache.c test/helper.c -o $@ -Itest/ -I./ -Lbuild/ $(CFLAGS) $(LDFLAGS) -lxdc -l:libcapstone.so.4
 
-tester_static: staticlib test/*.c test/*.h
-	$(CC) test/tester.c test/page_cache.c test/helper.c -o build/$@ -Itest/ -I./ $(CFLAGS) $(LDFLAGS) -Lbuild/ -l:libxdc.a -l:libcapstone.so.4
+tester_static: libxdc.a test/*.c test/*.h
+	$(CC) test/tester.c test/page_cache.c test/helper.c -o $@ -Itest/ -I./ $(CFLAGS) $(LDFLAGS) -Lbuild/ -l:libxdc.a -l:libcapstone.so.4
 
-install: dynlib staticlib
+install: libxdc.so libxdc.a
 	mkdir -p $(PREFIX)/include $(PREFIX)/lib
 	install -m0644 libxdc.h $(PREFIX)/include/
-	install -m0755 build/libxdc.so $(PREFIX)/lib/
-	install -m0755 build/libxdc.a $(PREFIX)/lib/
+	install -m0755 libxdc.so $(PREFIX)/lib/
+	install -m0755 libxdc.a $(PREFIX)/lib/
 
-.PHONY: clean
+.PHONY: clean install
 
 clean:
 	rm -f $(ODIR)/*.o build/*
+	rm libxdc.so
+	rm libxdc.a
+	rm tester_dyn
+	rm tester_static
