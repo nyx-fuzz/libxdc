@@ -165,16 +165,9 @@ static void flush_log(decoder_t* self){
 }
 #endif
 
-decoder_t* pt_decoder_init(){ 
-	decoder_t* res = malloc(sizeof(decoder_t));
+decoder_t* pt_decoder_init(){
+	decoder_t* res = calloc(1, sizeof(decoder_t));
 
-	res->page_fault_found = false;
-	res->page_fault_addr = 0;
-
-	res->ovp_state = false;
-	res->last_tip = 0;
-  res->last_fup_src = 0;
-	res->fup_bind_pending = false;
 #ifdef DECODER_LOG
 	flush_log(res);
 #endif
@@ -187,8 +180,6 @@ decoder_t* pt_decoder_init(){
 	res->decoder_state_result->valid = 0;
 	res->decoder_state_result->valid = false;
 	res->mode = mode_64;
-
-	res->error_counter = 0;
 
 	return res;
 }
