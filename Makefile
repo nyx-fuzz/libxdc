@@ -9,7 +9,7 @@ SDIR=src
 _OBJ = cfg.o disassembler.o tnt_cache.o decoder.o libxdc.o mmh3.o trace_cache.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-default: tester_dyn tester_static
+default: libxdc.so libxdc.a
 
 $(ODIR)/%.o: $(SDIR)/%.c $(SDIR)/*.h libxdc.h
 	mkdir -p build
@@ -25,7 +25,7 @@ tester_dyn: libxdc.so test/*.c test/*.h
 	$(CC) test/tester.c test/page_cache.c test/helper.c -o $@ -Itest/ -I./ -Lbuild/ $(CFLAGS) $(LDFLAGS) -lxdc -l:libcapstone.so.4
 
 tester_static: libxdc.a test/*.c test/*.h
-	$(CC) test/tester.c test/page_cache.c test/helper.c -o $@ -Itest/ -I./ $(CFLAGS) $(LDFLAGS) -Lbuild/ -l:libxdc.a -l:libcapstone.so.4
+	$(CC) test/tester.c test/page_cache.c test/helper.c -o $@ -Itest/ -I./ $(CFLAGS) $(LDFLAGS) -L. -l:libxdc.a -l:libcapstone.so.4
 
 install: libxdc.so libxdc.a
 	mkdir -p $(PREFIX)/include $(PREFIX)/lib
@@ -39,5 +39,3 @@ clean:
 	rm -f $(ODIR)/*.o build/*
 	rm libxdc.so
 	rm libxdc.a
-	rm tester_dyn
-	rm tester_static

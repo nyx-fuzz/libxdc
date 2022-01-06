@@ -40,5 +40,6 @@ __attribute__ ((visibility ("default"))) void libxdc_disable_tracing(libxdc_t* s
 __attribute__ ((visibility ("default"))) void libxdc_free(libxdc_t* self);
 __attribute__ ((visibility ("default"))) void libxdc_bitmap_reset(libxdc_t* self);
 
-__attribute__ ((visibility ("default")))  void libxdc_register_bb_callback(libxdc_t* self,  void (*basic_block_callback)(void*, disassembler_mode_t, uint64_t, uint64_t), void* basic_block_callback_opaque);
+__attribute__ ((visibility ("default")))  void libxdc_register_bb_callback(libxdc_t* self,  void (*basic_block_callback)(void*, uint64_t, uint64_t), void* basic_block_callback_opaque);
 __attribute__ ((visibility ("default")))  void libxdc_register_edge_callback(libxdc_t* self,  void (*edge_callback)(void*, uint64_t, uint64_t), void* edge_callback_opaque);
+__attribute__ ((visibility ("default")))  void libxdc_register_ip_callback(libxdc_t* self,  void (*ip_callback)(void*, uint64_t), void* ip_callback_opaque);

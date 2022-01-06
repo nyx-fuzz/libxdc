@@ -59,7 +59,14 @@ __attribute__ ((visibility ("default")))  libxdc_t* libxdc_init(uint64_t filter[
 
   self->fuzz_bitmap = net_fuzz_bitmap(bitmap_ptr, bitmap_size);
   self->decoder = pt_decoder_init();
-  self->disassembler = init_disassembler(filter, page_cache_fetch_fptr, page_cache_fetch_opaque, self->fuzz_bitmap);  
+  self->disassembler = init_disassembler(filter, page_cache_fetch_fptr, page_cache_fetch_opaque, self->fuzz_bitmap);
+
+  if ( !self->disassembler )
+  {
+    libxdc_free(self);
+    return NULL;
+  }
+
   self->decoder->disassembler_state = self->disassembler; /* fugly hack */
 
   fuzz_bitmap_reset(self->fuzz_bitmap);
@@ -68,7 +75,7 @@ __attribute__ ((visibility ("default")))  libxdc_t* libxdc_init(uint64_t filter[
 }
 
 /* register rq handler */
-__attribute__ ((visibility ("default")))  void libxdc_register_bb_callback(libxdc_t* self,  void (*basic_block_callback)(void*, disassembler_mode_t, uint64_t, uint64_t), void* basic_block_callback_opaque){
+__attribute__ ((visibility ("default")))  void libxdc_register_bb_callback(libxdc_t* self,  void (*basic_block_callback)(void*, uint64_t, uint64_t), void* basic_block_callback_opaque){
   assert(self);
   self->disassembler->basic_block_callback = basic_block_callback;
   self->disassembler->basic_block_callback_opaque = basic_block_callback_opaque;
@@ -79,6 +86,13 @@ __attribute__ ((visibility ("default")))  void libxdc_register_edge_callback(lib
   assert(self);
   self->disassembler->trace_edge_callback = edge_callback;
   self->disassembler->trace_edge_callback_opaque = edge_callback_opaque;
+}
+
+/* register rq handler */
+__attribute__ ((visibility ("default")))  void libxdc_register_ip_callback(libxdc_t* self,  void (*ip_callback)(void*, uint64_t), void* ip_callback_opaque){
+  assert(self);
+  self->decoder->ip_callback = ip_callback;
+  self->decoder->ip_callback_opaque = ip_callback_opaque;
 }
 
 /* enable rq tracing */

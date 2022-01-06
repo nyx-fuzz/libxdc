@@ -23,6 +23,7 @@ SOFTWARE.
 #pragma once
 #define _GNU_SOURCE
 #include <stdint.h>
+#include <stdbool.h>
 #include "khash.h"
 #include <stdlib.h>
 
@@ -67,7 +68,7 @@ typedef struct disassembler_cfg_s{
     khash_t(ADDR0) *ip_to_node_id;
 } disassembler_cfg_t;
 
-void                disassembler_cfg_init(disassembler_cfg_t* res, uint32_t size);
+bool                disassembler_cfg_init(disassembler_cfg_t* res, uint32_t size);
 void                disassembler_cfg_destroy(disassembler_cfg_t* self);
 void                disassembler_cfg_inspect(disassembler_cfg_t* self, node_id_t nid);
 void                disassembler_cfg_resize(disassembler_cfg_t* self);
