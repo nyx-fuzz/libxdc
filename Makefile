@@ -25,7 +25,7 @@ tester_dyn: libxdc.so test/*.c test/*.h
 	$(CC) test/tester.c test/page_cache.c test/helper.c -o $@ -Itest/ -I./ -Lbuild/ $(CFLAGS) $(LDFLAGS) -lxdc -l:libcapstone.so.4
 
 tester_static: libxdc.a test/*.c test/*.h
-	$(CC) test/tester.c test/page_cache.c test/helper.c -o $@ -Itest/ -I./ $(CFLAGS) $(LDFLAGS) -Lbuild/ -l:libxdc.a -l:libcapstone.so.4
+	$(CC) test/tester.c test/page_cache.c test/helper.c -o $@ -Itest/ -I./ $(CFLAGS) $(LDFLAGS) -L. -l:libxdc.a -l:libcapstone.so.4
 
 install: libxdc.so libxdc.a
 	mkdir -p $(PREFIX)/include $(PREFIX)/lib
