@@ -22,7 +22,7 @@ libxdc.a: $(OBJ)
 	$(AR) rcs $@ $^
 
 tester_dyn: libxdc.so test/*.c test/*.h
-	$(CC) test/tester.c test/page_cache.c test/helper.c -o $@ -Itest/ -I./ -Lbuild/ $(CFLAGS) $(LDFLAGS) -lxdc -l:libcapstone.so.4
+	$(CC) test/tester.c test/page_cache.c test/helper.c -o $@ -Itest/ -I./ $(CFLAGS) $(LDFLAGS) -L. -lxdc -l:libcapstone.so.4
 
 tester_static: libxdc.a test/*.c test/*.h
 	$(CC) test/tester.c test/page_cache.c test/helper.c -o $@ -Itest/ -I./ $(CFLAGS) $(LDFLAGS) -L. -l:libxdc.a -l:libcapstone.so.4
@@ -37,5 +37,5 @@ install: libxdc.so libxdc.a
 
 clean:
 	rm -f $(ODIR)/*.o build/*
-	rm libxdc.so
-	rm libxdc.a
+	rm -f libxdc.so
+	rm -f libxdc.a
