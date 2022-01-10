@@ -137,7 +137,7 @@ typedef struct disassembler_s{
 	void (*trace_edge_callback)(void*, uint64_t, uint64_t);
 	void* trace_edge_callback_opaque;
 
-	void (*basic_block_callback)(void*, uint64_t, uint64_t);
+	void (*basic_block_callback)(void*, disassembler_mode_t, uint64_t, uint64_t);
 	void* basic_block_callback_opaque;
 
 	disassembler_cfg_t cfg;

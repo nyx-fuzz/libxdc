@@ -322,7 +322,7 @@ static node_id_t disassemble_bb(disassembler_t* self, uint64_t base_address, uin
 		}
 	}
 	if(res_nid != NODE_PAGE_FAULT && self->basic_block_callback){
-		self->basic_block_callback(self->basic_block_callback_opaque, self->cfg.base_addr[res_nid], self->cfg.cofi_addr[res_nid]);
+		self->basic_block_callback(self->basic_block_callback_opaque, mode, self->cfg.base_addr[res_nid], self->cfg.cofi_addr[res_nid]);
 	} 
 	cs_free(insn, 1);
 	return res_nid;
