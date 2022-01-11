@@ -134,7 +134,7 @@ typedef struct disassembler_s{
 	void* (*page_cache_fetch_fptr)(void*, uint64_t, bool*);
 	void* page_cache_fetch_opaque;
 
-	void (*trace_edge_callback)(void*, uint64_t, uint64_t);
+	void (*trace_edge_callback)(void*, disassembler_mode_t, uint64_t, uint64_t);
 	void* trace_edge_callback_opaque;
 
 	void (*basic_block_callback)(void*, disassembler_mode_t, uint64_t, uint64_t);
@@ -182,7 +182,7 @@ typedef struct decoder_s{
 	disassembler_mode_t mode;
 	int error_counter;
 
-	void (*ip_callback)(void*, uint64_t);
+	void (*ip_callback)(void*, disassembler_mode_t, uint64_t);
 	void* ip_callback_opaque;
 
 #ifdef DECODER_LOG

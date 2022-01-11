@@ -334,7 +334,7 @@ static inline uint64_t get_ip_val(decoder_t* self, uint8_t **pp){
     *pp += new_bits >> 3;
 
     if (unlikely(NULL != self->ip_callback))
-        self->ip_callback(self->ip_callback_opaque, aligned_last_ip);
+        self->ip_callback(self->ip_callback_opaque, self->mode, aligned_last_ip);
 
     return aligned_last_ip;
 }
@@ -407,7 +407,7 @@ static void tip_pge_handler(decoder_t* self, uint8_t** p){
  	 assert(!self->decoder_state_result->valid);
 
 	if(unlikely(self->disassembler_state->trace_mode)){
-		self->disassembler_state->trace_edge_callback(self->disassembler_state->trace_edge_callback_opaque, INIT_TRACE_IP, self->last_tip);
+		self->disassembler_state->trace_edge_callback(self->disassembler_state->trace_edge_callback_opaque, self->mode, INIT_TRACE_IP, self->last_tip);
 	}
 #ifdef DECODER_LOG
 	self->log.tip_pge++;
@@ -433,9 +433,9 @@ static void tip_pgd_handler(decoder_t* self, uint8_t** p){
 	if(unlikely(self->disassembler_state->trace_mode)){
 		if(self->disassembler_state->has_pending_indirect_branch){
 			self->disassembler_state->has_pending_indirect_branch = false;
-			self->disassembler_state->trace_edge_callback(self->disassembler_state->trace_edge_callback_opaque,  self->disassembler_state->pending_indirect_branch_src, self->last_tip);
+			self->disassembler_state->trace_edge_callback(self->disassembler_state->trace_edge_callback_opaque, self->mode, self->disassembler_state->pending_indirect_branch_src, self->last_tip);
 		}
-		self->disassembler_state->trace_edge_callback(self->disassembler_state->trace_edge_callback_opaque,  self->last_tip, INIT_TRACE_IP);
+		self->disassembler_state->trace_edge_callback(self->disassembler_state->trace_edge_callback_opaque, self->mode, self->last_tip, INIT_TRACE_IP);
 		//TODO, old code had:
 		//redqueen_trace_register_transition(self, self->last_ip, ip);
 		//redqueen_trace_register_transition(self, ip, INIT_TRACE_IP);

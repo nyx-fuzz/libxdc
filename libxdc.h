@@ -61,9 +61,9 @@ uint64_t libxdc_get_page_fault_addr(libxdc_t* self);
 void libxdc_free(libxdc_t* self);
 void libxdc_bitmap_reset(libxdc_t* self);
 
-void libxdc_register_bb_callback(libxdc_t* self,  void (*basic_block_callback)(void*, uint64_t, uint64_t), void* basic_block_callback_opaque);
-void libxdc_register_edge_callback(libxdc_t* self,  void (*edge_callback)(void*, uint64_t, uint64_t), void* edge_callback_opaque);
-void libxdc_register_ip_callback(libxdc_t* self,  void (*ip_callback)(void*, uint64_t), void* ip_callback_opaque);
+void libxdc_register_bb_callback(libxdc_t* self,  void (*basic_block_callback)(void*, disassembler_mode_t, uint64_t, uint64_t), void* basic_block_callback_opaque);
+void libxdc_register_edge_callback(libxdc_t* self,  void (*edge_callback)(void*, disassembler_mode_t, uint64_t, uint64_t), void* edge_callback_opaque);
+void libxdc_register_ip_callback(libxdc_t* self,  void (*ip_callback)(void*, disassembler_mode_t, uint64_t), void* ip_callback_opaque);
 
 void libxdc_enable_tracing(libxdc_t* self);
 void libxdc_disable_tracing(libxdc_t* self);

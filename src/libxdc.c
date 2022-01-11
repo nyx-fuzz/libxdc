@@ -82,18 +82,18 @@ __attribute__ ((visibility ("default")))  void libxdc_register_bb_callback(libxd
 }
 
 /* register rq handler */
-__attribute__ ((visibility ("default")))  void libxdc_register_edge_callback(libxdc_t* self,  void (*edge_callback)(void*, uint64_t, uint64_t), void* edge_callback_opaque){
+__attribute__ ((visibility ("default")))  void libxdc_register_edge_callback(libxdc_t* self,  void (*edge_callback)(void*, disassembler_mode_t, uint64_t, uint64_t), void* edge_callback_opaque){
   assert(self);
   self->disassembler->trace_edge_callback = edge_callback;
   self->disassembler->trace_edge_callback_opaque = edge_callback_opaque;
 }
 
 /* register rq handler */
-__attribute__ ((visibility ("default")))  void libxdc_register_ip_callback(libxdc_t* self,  void (*ip_callback)(void*, uint64_t), void* ip_callback_opaque){
+__attribute__ ((visibility ("default")))  void libxdc_register_ip_callback(libxdc_t* self,  void (*ip_callback)(void*, disassembler_mode_t, uint64_t), void* ip_callback_opaque){
   assert(self);
   self->decoder->ip_callback = ip_callback;
   self->decoder->ip_callback_opaque = ip_callback_opaque;
-}
+} 
 
 /* enable rq tracing */
 __attribute__ ((visibility ("default")))  void libxdc_enable_tracing(libxdc_t* self){

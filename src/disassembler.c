@@ -475,11 +475,11 @@ static inline node_id_t get_node_br2(disassembler_t* self, node_id_t cur_nid, tn
 	return next;
 }
 
-static inline void inform_disassembler_target_ip(disassembler_t* self, uint64_t target_ip, bool trace_mode){
+static inline void inform_disassembler_target_ip(disassembler_t* self, disassembler_mode_t mode, uint64_t target_ip, bool trace_mode){
   if(self->has_pending_indirect_branch){
 		self->has_pending_indirect_branch = false;
 		if(trace_mode){
-			self->trace_edge_callback(self->trace_edge_callback_opaque, self->pending_indirect_branch_src, target_ip);
+			self->trace_edge_callback(self->trace_edge_callback_opaque, mode, self->pending_indirect_branch_src, target_ip);
 		}
 		if(!trace_mode){
 			add_result_tracelet_cache(self->trace_cache->trace_cache, self->pending_indirect_branch_src, target_ip, self->fuzz_bitmap);
@@ -519,7 +519,7 @@ static inline void inform_disassembler_target_ip(disassembler_t* self, uint64_t 
 	uint8_t dispatch_type = 0;
 	node_id_t nid = NODE_NOT_DEFINED;
 
-	inform_disassembler_target_ip(self, *entry_point, trace_mode);
+	inform_disassembler_target_ip(self, mode, *entry_point, trace_mode);
 
 	if(likely(!trace_mode)){
 		reset_tracelet_tmp_cache(self->trace_cache->trace_cache);
@@ -553,7 +553,7 @@ static inline void inform_disassembler_target_ip(disassembler_t* self, uint64_t 
 			case TAKEN:		
 				//printf("taken 1\n");
 				if(unlikely(trace_mode)){
-					self->trace_edge_callback(self->trace_edge_callback_opaque,  self->cfg.cofi_addr[nid], self->cfg.br1_addr[nid] );
+					self->trace_edge_callback(self->trace_edge_callback_opaque, mode, self->cfg.cofi_addr[nid], self->cfg.br1_addr[nid] );
 				} else {
 					add_result_tracelet_cache(self->trace_cache->trace_cache, self->cfg.cofi_addr[nid], self->cfg.br1_addr[nid] , self->fuzz_bitmap);
 				}
@@ -566,7 +566,7 @@ static inline void inform_disassembler_target_ip(disassembler_t* self, uint64_t 
 			case NOT_TAKEN:
 				//printf("not_taken 1\n");
 				if(unlikely(trace_mode)){
-					self->trace_edge_callback(self->trace_edge_callback_opaque, self->cfg.cofi_addr[nid], self->cfg.br2_addr[nid]);
+					self->trace_edge_callback(self->trace_edge_callback_opaque, mode, self->cfg.cofi_addr[nid], self->cfg.br2_addr[nid]);
 				} else {
 					add_result_tracelet_cache(self->trace_cache->trace_cache, self->cfg.cofi_addr[nid], self->cfg.br2_addr[nid] , self->fuzz_bitmap);
 				}
@@ -579,7 +579,7 @@ static inline void inform_disassembler_target_ip(disassembler_t* self, uint64_t 
 	do_unconditional_branch:
 		//printf("unconditional branch 1\n");
 		if(unlikely(trace_mode)){
-			self->trace_edge_callback(self->trace_edge_callback_opaque, self->cfg.cofi_addr[nid], self->cfg.br1_addr[nid]);
+			self->trace_edge_callback(self->trace_edge_callback_opaque, mode, self->cfg.cofi_addr[nid], self->cfg.br1_addr[nid]);
 		}
 		nid = get_node_br1(self, nid, tnt_cache_state, failed_page, mode);
 		loop++;
