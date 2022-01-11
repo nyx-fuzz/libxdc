@@ -29,7 +29,7 @@ SOFTWARE.
 #include "core.h"
 
 
-#define LIBXDC_RELEASE_VERSION 1
+#define LIBXDC_RELEASE_VERSION 2
 
 __attribute__ ((visibility ("default")))  uint16_t libxdc_get_release_version(void){
   return LIBXDC_RELEASE_VERSION;
