@@ -28,7 +28,7 @@ SOFTWARE.
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define LIBXDC_RELEASE_VERSION 1
+#define LIBXDC_RELEASE_VERSION 2
 
 #define PT_TRACE_END			__extension__ 0b01010101
 
