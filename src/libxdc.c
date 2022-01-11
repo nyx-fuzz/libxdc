@@ -28,8 +28,19 @@ SOFTWARE.
 #include "libxdc.h"
 #include "core.h"
 
+/* 
+==== Required Function Pointers ====
 
-#define LIBXDC_RELEASE_VERSION 2
+redqueen_register_transition  // to re-assemble covered BBs 
+set_rq_instruction            // to register RQ instruction candidate
+
+
+page_cache_cs_malloc 
+page_cache_disassemble_iter 
+
+*/
+
+#define LIBXDC_RELEASE_VERSION 1
 
 __attribute__ ((visibility ("default")))  uint16_t libxdc_get_release_version(void){
   return LIBXDC_RELEASE_VERSION;
@@ -56,7 +67,7 @@ __attribute__ ((visibility ("default")))  libxdc_t* libxdc_init(uint64_t filter[
     return NULL;
   }
 
-  self->decoder->disassembler_state = self->disassembler;
+  self->decoder->disassembler_state = self->disassembler; /* fugly hack */
 
   fuzz_bitmap_reset(self->fuzz_bitmap);
 
@@ -71,18 +82,18 @@ __attribute__ ((visibility ("default")))  void libxdc_register_bb_callback(libxd
 }
 
 /* register rq handler */
-__attribute__ ((visibility ("default")))  void libxdc_register_edge_callback(libxdc_t* self,  void (*edge_callback)(void*, disassembler_mode_t, uint64_t, uint64_t), void* edge_callback_opaque){
+__attribute__ ((visibility ("default")))  void libxdc_register_edge_callback(libxdc_t* self,  void (*edge_callback)(void*, uint64_t, uint64_t), void* edge_callback_opaque){
   assert(self);
   self->disassembler->trace_edge_callback = edge_callback;
   self->disassembler->trace_edge_callback_opaque = edge_callback_opaque;
 }
 
 /* register rq handler */
-__attribute__ ((visibility ("default")))  void libxdc_register_ip_callback(libxdc_t* self,  void (*ip_callback)(void*, disassembler_mode_t, uint64_t), void* ip_callback_opaque){
+__attribute__ ((visibility ("default")))  void libxdc_register_ip_callback(libxdc_t* self,  void (*ip_callback)(void*, uint64_t), void* ip_callback_opaque){
   assert(self);
   self->decoder->ip_callback = ip_callback;
   self->decoder->ip_callback_opaque = ip_callback_opaque;
-} 
+}
 
 /* enable rq tracing */
 __attribute__ ((visibility ("default")))  void libxdc_enable_tracing(libxdc_t* self){
@@ -120,3 +131,21 @@ __attribute__ ((visibility ("default")))  void libxdc_free(libxdc_t* self){
   free(self->fuzz_bitmap);
   free(self);
 }
+
+
+
+
+
+/*
+void fuzz_bitmap_set_size(uint32_t size){
+	fuzz_bitmap_size = size;
+}
+
+uint32_t fuzz_bitmap_get_size(void){
+	return fuzz_bitmap_size;
+}
+
+void fuzz_bitmap_set_ptr(void* ptr){
+	fuzz_bitmap = (uint8_t*) ptr;
+}
+*/

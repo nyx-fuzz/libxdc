@@ -196,8 +196,7 @@ int performance_test(uint64_t filter[4][2], uint8_t* trace, uint64_t trace_size,
 	return ret_val;
 }
 
-static void rq_callback(void* opaque, disassembler_mode_t mode, uint64_t start_addr, uint64_t cofi_addr){
-	assert(mode == mode_16 || mode == mode_32 || mode == mode_64);
+static void rq_callback(void* opaque, uint64_t start_addr, uint64_t cofi_addr){
 	(*((uint64_t*)opaque))++;
 }
 
@@ -223,14 +222,9 @@ int redqueen_test(uint64_t filter[4][2], uint8_t* trace, uint64_t trace_size, co
 	return ret_val;
 }
 
-void trace_log(void* fd, disassembler_mode_t mode, uint64_t src, uint64_t dst){
-	assert(mode == mode_16 || mode == mode_32 || mode == mode_64);
+void trace_log(void* fd, uint64_t src, uint64_t dst){
 	dprintf(*(int*)fd, "%lx->%lx\n", src,dst);
 	printf("%lx->%lx\n", src,dst);
-}
-
-void ip_callback(void* opaque, disassembler_mode_t mode, uint64_t ip){
-	assert(mode == mode_16 || mode == mode_32 || mode == mode_64);
 }
 
 int trace_test(uint64_t filter[4][2], uint8_t* trace, uint64_t trace_size, const char* page_cache_file, uint64_t final_hash){
@@ -246,8 +240,6 @@ int trace_test(uint64_t filter[4][2], uint8_t* trace, uint64_t trace_size, const
   	libxdc_t* decoder = libxdc_init(filter, &page_cache_fetch, page_cache, bitmap, 0x10000);
 	libxdc_enable_tracing(decoder);
 	libxdc_register_edge_callback(decoder, &trace_log, &fd);
-	libxdc_register_ip_callback(decoder, &ip_callback, NULL);
-
 	ret = libxdc_decode(decoder, trace, trace_size);
 	libxdc_disable_tracing(decoder);
 	close(fd);
