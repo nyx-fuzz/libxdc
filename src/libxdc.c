@@ -28,17 +28,6 @@ SOFTWARE.
 #include "libxdc.h"
 #include "core.h"
 
-/* 
-==== Required Function Pointers ====
-
-redqueen_register_transition  // to re-assemble covered BBs 
-set_rq_instruction            // to register RQ instruction candidate
-
-
-page_cache_cs_malloc 
-page_cache_disassemble_iter 
-
-*/
 
 #define LIBXDC_RELEASE_VERSION 1
 
@@ -67,7 +56,7 @@ __attribute__ ((visibility ("default")))  libxdc_t* libxdc_init(uint64_t filter[
     return NULL;
   }
 
-  self->decoder->disassembler_state = self->disassembler; /* fugly hack */
+  self->decoder->disassembler_state = self->disassembler;
 
   fuzz_bitmap_reset(self->fuzz_bitmap);
 
@@ -131,21 +120,3 @@ __attribute__ ((visibility ("default")))  void libxdc_free(libxdc_t* self){
   free(self->fuzz_bitmap);
   free(self);
 }
-
-
-
-
-
-/*
-void fuzz_bitmap_set_size(uint32_t size){
-	fuzz_bitmap_size = size;
-}
-
-uint32_t fuzz_bitmap_get_size(void){
-	return fuzz_bitmap_size;
-}
-
-void fuzz_bitmap_set_ptr(void* ptr){
-	fuzz_bitmap = (uint8_t*) ptr;
-}
-*/
