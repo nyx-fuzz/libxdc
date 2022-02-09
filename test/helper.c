@@ -114,7 +114,7 @@ int handle_result(libxdc_t* decoder, decoder_result_t ret, uint64_t final_hash){
 	int ret_val;
 	print_result_code(ret);
 	if(ret != decoder_success && ret != decoder_success_pt_overflow){
-		//printf("[*] page not found:   \t0x%lx\n", libxdc_get_page_fault_addr(decoder));
+		printf("[*] page fault addr:   \t0x%lx\n", libxdc_get_page_fault_addr(decoder));
 		ret_val = 1;
 	}
 	else{

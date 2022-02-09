@@ -271,51 +271,63 @@ int main(int argc, char** argv){
 	uint8_t* trace;
 	uint64_t trace_size;
 	uint64_t final_hash;
+	const char* page_cache_file;
+	const char* cmd_mode;
 	
 	int ret_val;
 
-	if (argc != 7){
-		printf("Usage: %s <ip_start> <ip_end> <page_cache> <trace_data> <hash> <MODE> (MODE: simple/dynamic/performance)\n", argv[0]);
+	if (argc < 7 || argc%2 != 1){
+		printf("Usage: %s <page_cache> <trace_data> <hash> <MODE>"
+			   " <ip_start> <ip_end> [<ip_start> <ip_end>]\n"
+			   "\t where MODE := {simple,dynamic,performance,redqueen,trace}\n", argv[0]);
 		printf("[ ] Aborting...\n");
 		return 1;
 	}
 
 	printf("[*] Loading files...\n");
 
-	start = strtoul(argv[1], NULL, 16);
-	end = strtoul(argv[2], NULL, 16);
-	trace = mapfile_read(argv[4], &trace_size);
-	final_hash = (uint64_t)strtoull(argv[5], NULL, 16);
+	page_cache_file = argv[1];
+	trace = mapfile_read(argv[2], &trace_size);
+	final_hash = (uint64_t)strtoull(argv[3], NULL, 16);
+	cmd_mode = argv[4];
+
+
+	int arg_n = 5;
+	for (int region=0; region<4; region++) {
+		if (argc-arg_n < 2)
+			break;
+		filter[region][0] = strtoul(argv[arg_n], NULL, 16);
+		filter[region][1] = strtoul(argv[arg_n+1], NULL, 16);
+		printf("[*] Trace region %d: 0x%lx-0x%lx (size=0x%lx)\n",
+				region,
+				filter[region][0], filter[region][1],
+				filter[region][1]-filter[region][0]);
+		arg_n += 2;
+	}
 
 	if(!trace){
 		printf("[ ] Trace file not found...\n");
 		exit(1);
 	}
-
-	printf("[*] Trace region:\t0x%lx-0x%lx\n", start, end);
-	printf("[*] Code size:   \t0x%lx\n", end-start);
 	printf("[*] Trace size:  \t0x%lx\n", trace_size);
 
-	filter[0][0] = start;
-	filter[0][1] = end;
-
-	if(!strcmp(argv[6], "simple")){
-		ret_val = simple_test(filter, trace, trace_size, argv[3], final_hash);
+	if(!strcmp(cmd_mode, "simple")){
+		ret_val = simple_test(filter, trace, trace_size, page_cache_file, final_hash);
 	}
-	else if(!strcmp(argv[6], "dynamic")){
-		ret_val = dynamic_test(filter, trace, trace_size, argv[3], final_hash);
+	else if(!strcmp(cmd_mode, "dynamic")){
+		ret_val = dynamic_test(filter, trace, trace_size, page_cache_file, final_hash);
 	}
-	else if(!strcmp(argv[6], "performance")){
-		ret_val = performance_test(filter, trace, trace_size, argv[3], final_hash);
+	else if(!strcmp(cmd_mode, "performance")){
+		ret_val = performance_test(filter, trace, trace_size, page_cache_file, final_hash);
 	}
-	else if(!strcmp(argv[6], "redqueen")){
-		ret_val = redqueen_test(filter, trace, trace_size, argv[3], final_hash);
+	else if(!strcmp(cmd_mode, "redqueen")){
+		ret_val = redqueen_test(filter, trace, trace_size, page_cache_file, final_hash);
 	}
-	else if(!strcmp(argv[6], "trace")){
-		ret_val = trace_test(filter, trace, trace_size, argv[3], final_hash);
+	else if(!strcmp(cmd_mode, "trace")){
+		ret_val = trace_test(filter, trace, trace_size, page_cache_file, final_hash);
 	}
 	else{
-		printf("[ ] Invalid mode (%s)...\n", argv[6]);
+		printf("[ ] Invalid mode (%s)...\n", cmd_mode);
 		exit(1);
 	}
 
