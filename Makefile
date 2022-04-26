@@ -22,7 +22,7 @@ libxdc.a: $(OBJ)
 	$(AR) rcs $@ $^
 
 ptdump: libxdc.so test/*.c test/*.h
-	$(CC) test/ptdump.c test/page_cache.c test/helper.c -o build/$@ -Itest/ -I./ -Lbuild/ $(CFLAGS) $(LDFLGAS) -lxdc -l:libcapstone.so.4
+	$(CC) test/ptdump.c test/page_cache.c test/helper.c -o build/$@ -Itest/ -I./ -Lbuild/ $(CFLAGS) $(LDFLAGS) -lxdc -l:libcapstone.so.4
 
 ptdump_static: libxdc.a test/*.c test/*.h
 	$(CC) test/ptdump.c test/page_cache.c test/helper.c -o build/$@ -Itest/ -I./ $(CFLAGS) $(LDFLAGS) -L. -l:libxdc.a -l:libcapstone.so.4
