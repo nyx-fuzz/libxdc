@@ -9,7 +9,7 @@ SDIR=src
 _OBJ = cfg.o disassembler.o tnt_cache.o decoder.o libxdc.o mmh3.o trace_cache.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-default: libxdc.so libxdc.a ptdump
+default: libxdc.so libxdc.a ptdump ptdump_static
 
 $(ODIR)/%.o: $(SDIR)/%.c $(SDIR)/*.h libxdc.h
 	mkdir -p build
