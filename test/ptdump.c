@@ -83,7 +83,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	printf("[*] Loading files...\n");
+	//printf("[*] Loading files...\n");
 
 	page_cache_file = argv[1];
 	trace = mapfile_read(argv[2], &trace_size);
@@ -95,10 +95,10 @@ int main(int argc, char** argv)
 			break;
 		filter[region][0] = strtoul(argv[arg_n], NULL, 16);
 		filter[region][1] = strtoul(argv[arg_n+1], NULL, 16);
-		printf("[*] Trace region %d: 0x%lx-0x%lx (size=0x%lx)\n",
-				region,
-				filter[region][0], filter[region][1],
-				filter[region][1]-filter[region][0]);
+		//printf("[*] Trace region %d: 0x%lx-0x%lx (size=0x%lx)\n",
+		//		region,
+		//		filter[region][0], filter[region][1],
+		//		filter[region][1]-filter[region][0]);
 		arg_n += 2;
 	}
 
