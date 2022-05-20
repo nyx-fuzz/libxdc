@@ -28,7 +28,7 @@ void trace_log(void* fd, disassembler_mode_t mode, uint64_t src, uint64_t dst)
 
 int trace_file(uint64_t filter[4][2], uint8_t* trace, uint64_t trace_size, const char* page_cache_file, const char* outfile)
 {
-	int ret_val;
+	int ret_val = 0;
 	decoder_result_t ret;
 	int fd = 0;
 
