@@ -43,6 +43,15 @@ __attribute__ ((visibility ("default")))  void libxdc_reset_trace_cache(libxdc_t
 Initlizes basic data structeres and expects function pointers to specific functions. 
 */
 __attribute__ ((visibility ("default")))  libxdc_t* libxdc_init(uint64_t filter[4][2], void* (*page_cache_fetch_fptr)(void*, uint64_t, bool*), void* page_cache_fetch_opaque, void* bitmap_ptr, size_t bitmap_size){
+  
+  if (filter[0][0] == 0 && filter[0][1] == 0 && 
+    filter[1][0] == 0 && filter[1][1] == 0 && 
+    filter[2][0] == 0 && filter[2][1] == 0 && 
+    filter[3][0] == 0 && filter[3][1] == 0){
+      fprintf(stderr, "libxdc error: empty filter configuration passed!\n");
+      return (void*)-1;
+  }
+  
   libxdc_t* self = malloc(sizeof(libxdc_t));
   memset(self, 0, sizeof(libxdc_t));
 
