@@ -1,6 +1,12 @@
 CC ?= gcc
-CFLAGS += -Ofast -fPIC -fvisibility=hidden -flto -finline-functions #-fprofile-use=program.gcda #-fprofile-generate #-g -fsanitize=address 
-LDFLAGS += -flto
+CFLAGS += -Ofast -fPIC -fvisibility=hidden -finline-functions
+LDFLAGS =
+
+ifneq ($(origin NO_LTO), environment)
+	CFLAGS += -flto
+    LDFLAGS += -flto
+endif
+
 PREFIX ?= /usr
 
 ODIR=build
