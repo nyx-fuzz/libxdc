@@ -4,7 +4,7 @@ LDFLAGS =
 
 ifneq ($(origin NO_LTO), environment)
 	CFLAGS += -flto
-    LDFLAGS += -flto
+	LDFLAGS += -flto
 endif
 
 PREFIX ?= /usr
@@ -28,7 +28,7 @@ libxdc.a: $(OBJ)
 	$(AR) rcs $@ $^
 
 ptdump: libxdc.so test/*.c test/*.h
-	$(CC) test/ptdump.c test/page_cache.c test/helper.c -o build/$@ -Itest/ -I./ -Lbuild/ $(CFLAGS) $(LDFLAGS) -lxdc -l:libcapstone.so.4
+	$(CC) test/ptdump.c test/page_cache.c test/helper.c -o build/$@ -Itest/ -I./ -Lbuild/ $(CFLAGS) $(LDFLAGS) -L. -lxdc -l:libcapstone.so.4
 
 ptdump_static: libxdc.a test/*.c test/*.h
 	$(CC) test/ptdump.c test/page_cache.c test/helper.c -o build/$@ -Itest/ -I./ $(CFLAGS) $(LDFLAGS) -L. -l:libxdc.a -l:libcapstone.a
